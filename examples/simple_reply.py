@@ -1,4 +1,4 @@
-import src.AfdianBot as AfdianBot
+import AfdianBot
 
 bot = AfdianBot.Bot(account="xxxxx", password="xxxx") # 填写账号密码
 
