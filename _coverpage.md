@@ -1,6 +1,6 @@
 <!-- _coverpage.md -->
 
-# Docsify使用指南
+# AfdianBot-Core 使用文档
 
 > AfdianBot-Core的使用文档，让你快速上手！
 
