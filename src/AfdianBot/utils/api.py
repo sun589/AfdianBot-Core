@@ -44,7 +44,7 @@ def logout(auth_token:str) -> None:
     cookies = {
         "auth_token":auth_token
     }
-    logout_req = requests.get("https://afdian.com/api/passport/logout", headers=headers, cookies=cookies).json()
+    logout_req = requests.get("https://afdian.com/api/passport/logout", headers=headers, cookies=cookies)
     logout_res = logout_req.json()
     if logout_res.get("ec")!= 200:
         raise AfdianResponeException(logout_res.get("ec"), logout_res.get("em"))
