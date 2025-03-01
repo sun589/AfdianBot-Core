@@ -28,10 +28,8 @@ def login(account:str,password:str) -> str:
     login_res = requests.post("https://afdian.com/api/passport/login", data=login_data, headers=headers) # 发送登录请求
     account_data = login_res.json()
     ec = account_data.get("ec")
-    if ec in [404,408]:
-        raise AfdianLoginFailed(ec, "账号或密码错误")
-    elif ec != 200:
-        raise AfdianLoginFailed(ec, account_data.get("msg"))
+    if ec != 200:
+        raise AfdianLoginFailed(ec, account_data.get("em"))
     return account_data['data'].get("auth_token")
 
 def logout(auth_token:str) -> None:
@@ -59,7 +57,7 @@ def get_user_info(user_id:str) -> dict:
     }
     get_profile_res = requests.get(f"https://afdian.com/api/user/get-profile?user_id={user_id}",headers)
     if get_profile_res.json().get("ec") != 200:
-        raise AfdianResponeException(get_profile_res.json().get("ec"), get_profile_res.json().get("msg"))
+        raise AfdianResponeException(get_profile_res.json().get("ec"), get_profile_res.json().get("em"))
     return {
         "name":get_profile_res.json().get("data").get("user").get("name"),
         "avatar":get_profile_res.json().get("data").get("user").get("avatar"),
