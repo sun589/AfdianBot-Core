@@ -3,7 +3,7 @@
 
 ## 快速入门
 ``` python
-import src.AfdianBot as AfdianBot
+import AfdianBot
 
 bot = AfdianBot.Bot(account="xxxxx", password="xxxx") # 填写账号密码
 
@@ -17,5 +17,4 @@ def hello(msg:AfdianBot.types.TextMsg):
 # bot.run(threded=True)
 bot.run()
 ```
-
-###### 文档没写完，项目刚建的，能看到说明你很幸运:)
+**更多文档内容详见[AfdianBot-Core文档](https://sun589.github.io/afdbot-core/)**

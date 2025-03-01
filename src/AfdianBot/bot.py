@@ -18,10 +18,12 @@ class Bot:
         self.__account = account
         self.__password = password
         self.__mapping = {}
-        self.__startup_funcs = set()
-        self.__shutdown_funcs = set()
-        self.__sponsorship_funcs = set()
-        self.__unknown_cmd_funcs = set()
+        self.__actions_mapping_funcs = {
+            "startup": set(),
+            "shutdown": set(),
+            "sponsorship": set(),
+            "unknown_cmd": set()
+        }
         self.use_multithreading = False
         self.local_latest_msg_id = None
         self.running = False
@@ -60,19 +62,11 @@ class Bot:
     def func_at(self, action, func):
         """
         同at装饰器的介绍，通过函数的形式添加一个动作
-        :param action: startup/shutdown/sponsorship
+        :param action: startup/shutdown/sponsorship/unknown_cmd
         :param func:
         :return:
         """
-        actions = {
-            "startup": self.__startup_funcs,
-            "shutdown": self.__shutdown_funcs,
-            "sponsorship": self.__sponsorship_funcs,
-            "unknown_cmd": self.__unknown_cmd_funcs
-        }
-        if action not in actions.keys():
-            raise ValueError(f"Invalid action: {action}")
-        actions[action].add(func)
+        self.__actions_mapping_funcs[action].add(func)
 
     def add_cmd(self, cmd, func, auto_truncate_fill=True):
         """
@@ -113,11 +107,11 @@ class Bot:
                             break
                     elif i['message'].get('type') == 2:
                         msg = types.SponsorMsg(i)
-                        for f in self.__sponsorship_funcs:
+                        for f in self.__actions_mapping_funcs['sponsorship']:
                             f(msg)
                         break
                 else:
-                    for j in self.__unknown_cmd_funcs:
+                    for j in self.__actions_mapping_funcs['unknown_cmd']:
                         msg = types.TextMsg(i)
                         j(msg)
 
@@ -178,7 +172,7 @@ class Bot:
             level=level,
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S')
-        logger.info(f"当前模式：{'多线程' if threading else '单线程'}")
+        logger.info(f"当前模式：{'多线程' if threaded else '单线程'}")
         logger.info("开始启动机器人")
         self.use_multithreading = threaded
         logger.info("登录爱发电")
@@ -195,12 +189,10 @@ class Bot:
         self.running = True
         logger.info("拉取latest_msg_id")
         latest_msg_list = session.get("https://afdian.com/api/message/dialogs?page=1&unread=0").json().get("data").get("list")
-        if len(latest_msg_list) <= 0:
-            logger.warning("未找到latest_msg_id!")
-        else:
+        if len(latest_msg_list) > 0:
             self.local_latest_msg_id = latest_msg_list[0].get("latest_msg_id")
             logger.debug(f"latest_msg_id：{self.local_latest_msg_id}")
-        for i in self.__startup_funcs:
+        for i in self.__actions_mapping_funcs['startup']:
             i()
         logger.info("机器人已准备就绪，开始工作!")
         while self.running:
@@ -223,7 +215,7 @@ class Bot:
                 self._login()
             except KeyboardInterrupt:
                 logger.info("正在停止机器人")
-                self.running = False
+                self.stop()
 
     def stop(self):
         """
@@ -232,7 +224,7 @@ class Bot:
         """
         logger.info("销毁auth_token中")
         logout(self.auth_token)
-        for i in self.__shutdown_funcs:
+        for i in self.__actions_mapping_funcs['shutdown']:
             i()
         logger.info("正在停止机器人")
         self.running = False
