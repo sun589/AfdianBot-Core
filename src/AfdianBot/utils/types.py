@@ -44,14 +44,28 @@ class SponsorMsg(Msg):
     sender_id: 发送者id
     send_time: 发送时间
     amount: 赞助金额
+    real_amount: 实际金额(添加到账户的金额)
     remark: 备注
     plan_id: 计划id
+    phone: 手机号
+    address: 收货地址
+    recipient: 收件人
+    redeem_id: 兑换码id
+    pay_type: 支付方式
     isredeem: 是否由兑换码/赠送领取
+    isupgrade: 是否为升级套餐
     """
     def __init__(self, data: dict):
         super().__init__(data)
         content = data["message"]['content']
-        self.amount = content.get("total_amount")
+        self.amount = float(content.get("total_amount"))
+        self.real_amount = float(content.get("show_amount"))
         self.remark = content.get("remark")
         self.plan_id = content['plan'].get("plan_id")
+        self.phone = content['ext']['address'].get("phone")
+        self.address = content['ext']['address'].get("address")
+        self.recipient = content['ext']['address'].get("name")
+        self.pay_type = content.get("pay_type")
+        self.isupgrade = bool(content.get("is_upgrade"))
         self.isredeem = bool(content['ext'].get("redeem"))
+        self.redeem_id = content['ext'].get("redeem")
