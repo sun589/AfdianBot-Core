@@ -123,9 +123,10 @@ class Bot:
                             f(msg)
                         break
                 else:
-                    for j in self.__actions_mapping_funcs['unknown_cmd']:
-                        msg = types.TextMsg(i)
-                        j(msg)
+                    if i['message'].get('type') in [1,7]: # 仅文本消息才执行未知指令的函数，避免误判
+                        for j in self.__actions_mapping_funcs['unknown_cmd']:
+                            msg = types.TextMsg(i)
+                            j(msg)
 
     def _all_reply(self, session:requests.session, dialogs:list):
         """
