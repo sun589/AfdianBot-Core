@@ -1,6 +1,6 @@
 <div align="center">
-<img src="/hd_icon.jpg" width="200" height="200">
 
+![](/hd_icon.png)
 # AfdianBot-Core 使用文档
 
 > 本文档将带领你获取AfdianBot-Core的各种函数，让你快速上手AfdianBot-Core，为你的爱发电接入机器人，增添灵活性与便利性  
