@@ -4,3 +4,6 @@
     * 消息类型
       * [TextMsg](/docs/types/msg/textmsg.md)
       * [SponsorMsg](/docs/types/msg/sponsor_msg.md)
+    * 异常类型
+      * [AfdianLoginFailed](/docs/types/exceptions/AfdianLoginFailed.md)
+      * [AfdianResponeException](/docs/types/exceptions/AfdianResponeException.md)
