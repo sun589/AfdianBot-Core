@@ -1,6 +1,6 @@
-## 赞助消息(SponsorMsg)
+# 赞助消息(SponsorMsg)
 
-### SponsorMsg
+## SponsorMsg
 
 | 字段名         | 类型      | 描述                 |
 | ----------- | ------- | ------------------ |

@@ -1,4 +1,4 @@
-## 爱发电登录失败(AfdianLoginFailed)
+# 爱发电登录失败(AfdianLoginFailed)
 
 常见于以下情况:
 
