@@ -2,12 +2,15 @@ import threading
 from inspect import getfullargspec
 from .exceptions import AfdianResponeException
 from .utils import login,logout
+from .utils import get_api_token
 from .utils import types
+from .utils import bot_vars
 import logging
 from fake_useragent import FakeUserAgent
 import time
 import requests
 import re
+import traceback
 
 logger = logging.getLogger("AfdianBot")
 __all__ = ["Bot"]
@@ -31,11 +34,20 @@ class Bot:
     def _login(self):
         logger.info("获取auth_token")
         self.auth_token = login(self.__account, self.__password)
-        logger.info(f"auth_token：{self.auth_token[:8] + '****'}")
+        logger.info(f"auth_token: {self.auth_token[:8] + '****'}")
+        logger.debug("获取api_token")
+        self.api_token = get_api_token(self.auth_token)
+        if self.api_token:
+            logger.debug(f"api_token: {self.api_token[:8] + '****'}")
+        else:
+            logger.debug("用户并未申请api_token!")
         logger.info("获取用户信息")
         profile_res = requests.get("https://afdian.com/api/my/profile", cookies={"auth_token": self.auth_token}, headers={"User-Agent": FakeUserAgent().random}).json()
         self.user_id = profile_res['data']['user'].get('user_id')
         username = profile_res['data']['user'].get('name')
+        bot_vars.set("auth_token",self.auth_token)
+        bot_vars.set("user_id",self.user_id)
+        bot_vars.set("api_token",self.api_token)
         logger.info("user_id：" + self.user_id)
         logger.info(f"{username}登录成功!")
 
@@ -132,13 +144,14 @@ class Bot:
             for task in tasks:
                 task.join()
 
-    def send_msg(self, msg:str,user_id:str):
+    def send_msg(self, msg,user_id:str):
         """
         发送消息,只支持文本消息
         :param user_id: 用户id
         :param msg: 消息内容
         :return:
         """
+        msg = str(msg)
         data = {
             "user_id":user_id,
             "type":"1",
@@ -212,10 +225,20 @@ class Bot:
             except AfdianResponeException as e:
                 logger.error(f"爱发电接口返回错误：{e}")
                 logger.info("重新登录中...")
-                self._login()
+                try:
+                    logout(self.auth_token)
+                    self._login()
+                except:
+                    logger.critical("ccccccc报错力(悲)")
+                    logger.critical(traceback.format_exc())
+                    logger.critical("紫砂中...")
+                    exit(1)
             except KeyboardInterrupt:
                 logger.info("正在停止机器人")
                 self.stop()
+            except:
+                logger.error("ccc报错力:(")
+                logger.error(traceback.format_exc())
 
     def stop(self):
         """
