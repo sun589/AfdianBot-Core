@@ -7,3 +7,8 @@
   * 异常类型
     * [AfdianLoginFailed](/docs/types/exceptions/AfdianLoginFailed.md)
     * [AfdianResponeException](/docs/types/exceptions/AfdianResponeException.md)
+* 功能
+  * 机器人(Bot)对象方法
+    * [注册指令(register)](/docs/funcs/注册一个指令.md)
+    * [注册动作(at)](/docs/funcs/注册动作.md)
+    * [发送消息(send_msg)](/docs/funcs/发送消息.md)
