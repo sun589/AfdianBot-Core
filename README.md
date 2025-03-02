@@ -9,6 +9,6 @@
 特别感谢由YSGStudyHards提供的[模板(点我前往)](https://github.com/YSGStudyHards/Docsify-Guide)  
 以下为使用本库制作的简易天气查询机器人示例:  
 
-![](/docs/images/readme/simple_example.png)
+![](./docs/images/readme/simple_example.png)
 
 </div>
