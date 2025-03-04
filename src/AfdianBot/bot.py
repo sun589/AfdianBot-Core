@@ -1,5 +1,5 @@
 import threading
-from inspect import getfullargspec
+from inspect import signature
 from .exceptions import AfdianResponeException
 from .utils import login,logout
 from .utils import get_api_token
@@ -60,7 +60,7 @@ class Bot:
             return func
         return wrapper
 
-    def at(self, action):
+    def at(self, *action):
         """
         设置函数在指定动作发生时执行,注意，当动作为sponsorship时，func的参数为SponsorMsg类型
         而在其他情况下，均不会传参
@@ -68,17 +68,18 @@ class Bot:
         :return:
         """
         def wrapper(func):
-            self.func_at(action, func)
+            self.func_at(func, *action)
         return wrapper
 
-    def func_at(self, action, func):
+    def func_at(self, func, *action):
         """
         同at装饰器的介绍，通过函数的形式添加一个动作
         :param action: startup/shutdown/sponsorship/unknown_cmd
         :param func:
         :return:
         """
-        self.__actions_mapping_funcs[action].add(func)
+        for i in action:
+            self.__actions_mapping_funcs[i].add(func)
 
     def add_cmd(self, cmd, func, auto_truncate_fill=True):
         """
@@ -105,7 +106,7 @@ class Bot:
                         match = re.match(j,i['message'].get('content'))
                         if match:
                             args = match.groups()
-                            needed_args = len(getfullargspec(self.__mapping[j][0]).args) - 1 # 减一留给msg
+                            needed_args = len(signature(self.__mapping[j][0]).parameters) - 1 # 减一留给msg
                             if self.__mapping[j][1]: # 判断是否需要处理多余/过少的参数
                                 if len(args) < needed_args: # 对于参数不足的情况，填充None
                                     args = args + (None,) * (needed_args - len(args))
