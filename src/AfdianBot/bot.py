@@ -113,7 +113,7 @@ class Bot:
                                 elif len(args) > needed_args:# 对于参数过多的情况，截断，避免参数过多的情况
                                     args = args[:needed_args]
                             msg = types.TextMsg(i)
-                            if needed_args > 1: # 需要留一个给msg，因此不是大于零
+                            if needed_args > 0:
                                 self.__mapping[j][0](msg,*args)
                             else:
                                 self.__mapping[j][0](msg)
