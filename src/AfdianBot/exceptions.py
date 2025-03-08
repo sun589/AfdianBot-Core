@@ -14,3 +14,7 @@ class AfdianLoginFailed(AfdianException):
 class AfdianResponeException(AfdianException):
     """爱发电响应异常"""
     pass
+
+class AfdianGetMsgFailed(AfdianResponeException):
+    """获取消息失败"""
+    pass
