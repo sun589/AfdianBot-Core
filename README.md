@@ -8,7 +8,7 @@
 
 特别感谢由YSGStudyHards提供的[模板(点我前往)](https://github.com/YSGStudyHards/Docsify-Guide)  
 以下为使用本库制作的简易天气查询机器人示例: 
-**本文档中的使用例子(包括下述例子)均可以在[example](https://github.com/sun589/AfdianBot-Core/tree/main/examples)找到**  
+本文档中的使用例子(包括下述例子)**部分**可以在[example](https://github.com/sun589/AfdianBot-Core/tree/main/examples)找到  
 
 ![](./docs/images/readme/simple_example.png)  
 
