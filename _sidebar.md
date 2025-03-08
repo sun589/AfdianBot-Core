@@ -2,13 +2,19 @@
 * [安装](/docs/安装.md)
 * 类型
   * 消息类型
-    * [TextMsg](/docs/types/msg/textmsg.md)
-    * [SponsorMsg](/docs/types/msg/sponsor_msg.md)
+    * [文本消息类型(TextMsg)](/docs/types/msg/textmsg.md)
+    * [赞助消息(SponsorMsg)](/docs/types/msg/sponsor_msg.md)
   * 异常类型
-    * [AfdianLoginFailed](/docs/types/exceptions/AfdianLoginFailed.md)
-    * [AfdianResponeException](/docs/types/exceptions/AfdianResponeException.md)
+    * [爱发电登录失败(AfdianLoginFailed)](/docs/types/exceptions/AfdianLoginFailed.md)
+    * [爱发电响应异常(AfdianResponeException)](/docs/types/exceptions/AfdianResponeException.md)
 * 功能
   * 机器人(Bot)对象方法
+    * [开机/关机(run)](/docs/funcs/开机.md)
     * [注册指令(register)](/docs/funcs/注册一个指令.md)
     * [注册动作(at)](/docs/funcs/注册动作.md)
     * [发送消息(send_msg)](/docs/funcs/发送消息.md)
+  * Api方法
+    * [登录(login)](/docs/funcs/api/登录.md)
+    * [登出(logout)](/docs/funcs/api/登出.md)
+    * [获取用户信息(get_user_info)](/docs/funcs/api/获取用户信息.md)
+    * [查询赞助者信息(query_sponsor)](/docs/funcs/api/查询赞助者信息.md)

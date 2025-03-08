@@ -1,0 +1,102 @@
+<!-- realworld.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>现实裂缝 - 递归校准</title>
+    <style>
+        body {
+            background: #0a0a2e;
+            color: #00ff9d;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            overflow: hidden;
+        }
+        .hologram {
+            border: 2px solid #00ffff;
+            box-shadow: 0 0 30px #00ffff;
+            margin: 20px auto;
+            width: 854px;
+            height: 480px;
+            position: relative;
+        }
+        .subtitle {
+            font-size: 1.5em;
+            text-shadow: 0 0 15px #00ffff;
+            animation: glitch 1s infinite;
+        }
+        @keyframes glitch {
+            0% { transform: translate(2px, 1px); }
+            25% { transform: translate(-1px, -2px); }
+            50% { transform: translate(3px, 2px); }
+            75% { transform: translate(-2px, 1px); }
+            100% { transform: translate(0); }
+        }
+        .portal-button {
+            background: #003366;
+            color: #00ff9d;
+            border: 1px solid #00ffff;
+            padding: 15px 30px;
+            margin: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .portal-button:hover {
+            background: #005588;
+            box-shadow: 0 0 25px #00ffff;
+        }
+    </style>
+</head>
+<body onload="playVideo()">
+    <h1 class="subtitle">维度校准成功...吗？</h1>
+    
+    <div class="hologram">
+        <!-- Rick Astley经典MV -->
+        <video id="myVideo" width="854" height="480" controls>
+            <source src="/realworld/suprise.mp4" type="video/mp4">
+        您的浏览器不支持Video标签
+        </video>
+    </div>
+
+    <p>>> 检测到古老模因协议激活 <<</p>
+    <p>这是人类最古老的网络仪式</p>
+
+    <button class="portal-button" onclick="window.location.href='/'">
+        [ 尝试返回现实 ]
+    </button>
+
+    <script>
+        // 动态添加仪式感
+        const ritualText = [
+            "加载永不言弃的承诺...",
+            "Enjoy it :)"
+        ];
+
+        ritualText.forEach((text, index) => {
+            setTimeout(() => {
+                const p = document.createElement('p');
+                p.textContent = text;
+                p.style.opacity = 0;
+                document.body.appendChild(p);
+                let opacity = 0;
+                const fadeIn = setInterval(() => {
+                    opacity += 0.1;
+                    p.style.opacity = opacity;
+                    if(opacity >= 1) clearInterval(fadeIn);
+                }, 50);
+            }, index * 1500);
+        });
+
+        function playVideo() {
+          var myVideo = document.getElementById("myVideo");
+          setTimeout(function() {
+            myVideo.play();
+          }, 1000);
+        }
+
+        // 控制台彩蛋
+        console.log("%c>> 你发现了互联网的古老智慧", "color:#00ff9d; font-size:16px;");
+        console.log("%c这个仪式可以追溯到Web 1.0时代", "color:#00ffff;");
+    </script>
+</body>
+</html>
