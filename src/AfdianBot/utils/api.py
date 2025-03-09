@@ -54,12 +54,14 @@ def logout(auth_token:str) -> None:
     if logout_res.get("ec") != 200:
         raise AfdianResponeException(logout_res.get("ec"), logout_res.get("em"))
 
-def get_api_token(auth_token:str) -> str:
+def get_api_token(auth_token:str=None) -> str:
     """
     获取api_token
-    :param auth_token: auth_token
+    :param auth_token: auth_token,默认使用机器人的auth_token
     :return: api_token
     """
+    if not auth_token:
+        auth_token = bot_vars.get("auth_token")
     headers = {
         "User-Agent": FakeUserAgent().random
     }
