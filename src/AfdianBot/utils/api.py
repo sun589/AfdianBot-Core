@@ -156,8 +156,6 @@ def get_sponsors(num:int=20,page:int=1,target:str=None,user_id:str=None,api_toke
         sponsors_info.append({
             "user":sponsor['user'],
             "all_sum_amount":float(sponsor["all_sum_amount"]),
-            "avatar":float(sponsor['user'].get('avatar')),
-            "name":sponsor['user'].get('name'),
             "current_plan_id":sponsor['current_plan'].get("plan_id"),
             "sponsor_plans":[{"plan_id":i['plan_id'],"expire_time":i['expire_time']} for i in sponsor['sponsor_plans']]
         })
