@@ -108,7 +108,7 @@ def query_sponsor(user_id:str,auth_token:str=None) -> dict:
     if query_res.get("ec") != 200:
         raise AfdianResponeException(query_res.get("ec"),query_res.get("em"))
     sponsors_info = query_res['data']['sponsor_info']['in_detail']
-    plans = [{"plan_id":i['plan_id'],"time":i['expire_time']} for i in sponsors_info['list']]
+    plans = [{"plan_id":i['plan_id'],"expire_time":i['expire_time']} for i in sponsors_info['list']]
     return {
         "all_sum_amount": float(sponsors_info['all_sum_amount']),
         "current_amount": float(sponsors_info['current_amount']),
@@ -157,7 +157,9 @@ def get_sponsors(num:int=20,page:int=1,target:str=None,user_id:str=None,api_toke
             "user":sponsor['user'],
             "all_sum_amount":float(sponsor["all_sum_amount"]),
             "avatar":float(sponsor['user'].get('avatar')),
-            "name":sponsor['user'].get('name')
+            "name":sponsor['user'].get('name'),
+            "current_plan_id":sponsor['current_plan'].get("plan_id"),
+            "sponsor_plans":[{"plan_id":i['plan_id'],"expire_time":i['expire_time']} for i in sponsor['sponsor_plans']]
         })
     return sponsors_info
 
