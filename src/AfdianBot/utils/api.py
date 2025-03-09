@@ -72,7 +72,7 @@ def get_api_token(auth_token:str=None) -> str:
     get_api_token_res = get_api_token_req.json()
     if get_api_token_res.get("ec") != 200:
         raise AfdianResponeException(get_api_token_res.get("ec"),get_api_token_res.get("em"))
-    return get_api_token_res['data']['token']
+    return get_api_token_res['data'].get("token")
 
 def get_user_info(user_id:str) -> dict:
     """
