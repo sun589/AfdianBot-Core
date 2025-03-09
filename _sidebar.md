@@ -25,3 +25,4 @@
     * [获取签名(get_sign)](docs/funcs/api/获取签名.md)
 * 使用实例
   * [获取机器人的信息](/docs/example/获取机器人的信息.md)
+  * [一机一码计算](/docs/example/一机一码计算.md)
