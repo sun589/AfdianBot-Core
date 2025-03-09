@@ -110,8 +110,8 @@ def query_sponsor(user_id:str,auth_token:str=None) -> dict:
     sponsors_info = query_res['data']['sponsor_info']['in_detail']
     plans = [{"plan_id":i['plan_id'],"time":i['expire_time']} for i in sponsors_info['list']]
     return {
-        "all_sum_amount": sponsors_info['all_sum_amount'],
-        "current_amount": sponsors_info['current_amount'],
+        "all_sum_amount": float(sponsors_info['all_sum_amount']),
+        "current_amount": float(sponsors_info['current_amount']),
         "plans":plans
     }
 
@@ -155,8 +155,8 @@ def get_sponsors(num:int=20,page:int=1,target:str=None,user_id:str=None,api_toke
     for sponsor in sponsors:
         sponsors_info.append({
             "user":sponsor['user'],
-            "all_sum_amount":sponsor["all_sum_amount"],
-            "avatar":sponsor['user'].get('avatar'),
+            "all_sum_amount":float(sponsor["all_sum_amount"]),
+            "avatar":float(sponsor['user'].get('avatar')),
             "name":sponsor['user'].get('name')
         })
     return sponsors_info
