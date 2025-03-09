@@ -173,3 +173,51 @@ def get_sign(user_id:str, api_token:str, params:dict, ts) -> str:
     """
     params = json.dumps(params).replace(" ","")
     return md5(f"{api_token}params{params}ts{ts}user_id{user_id}".encode("utf-8")).hexdigest()
+
+def get_plans(user_id:str) -> list:
+    """
+    获取指定用户的所有赞助方案
+    :param user_id: user_id
+    :return:
+    """
+    headers = {
+        "User-Agent":FakeUserAgent().random
+    }
+    get_plans_res = requests.get(f"https://afdian.com/api/creator/get-plans?user_id={user_id}", headers=headers).json()
+    if get_plans_res.get("ec") != 200:
+        raise AfdianResponeException(get_plans_res.get("ec"),get_plans_res.get("em"))
+    plans = get_plans_res['data']['list']
+    return [
+        {
+            "plan_id":i['plan_id'],
+            "name":i['name'],
+            "price":float(i['price']),
+            "desc":i['desc']
+        }
+        for i in plans
+    ]
+
+def get_products(user_id:str, page:int=1) -> list:
+    """
+    获取指定用户的所有商品
+    :param user_id: user_id
+    :param page: 页数
+    :return:
+    """
+    headers = {
+        "User-Agent":FakeUserAgent().random
+    }
+
+    get_products_res = requests.get(f"https://afdian.com/api/creator/get-products?user_id={user_id}&page={page}", headers=headers).json()
+    if get_products_res.get("ec")!= 200:
+        raise AfdianResponeException(get_products_res.get("ec"),get_products_res.get("em"))
+    products = get_products_res['data']['list']
+    return [
+        {
+            "plan_id":i['plan_id'],
+            "name":i['name'],
+            "price":float(i['price']),
+            "desc":i['desc']
+        }
+        for i in products
+    ]
