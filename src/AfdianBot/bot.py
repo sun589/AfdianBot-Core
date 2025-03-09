@@ -34,6 +34,7 @@ class Bot:
 
     def _login(self):
         logger.info("获取auth_token")
+        logger.debug(f"登录爱发电，账号：{self.__account[:4] + '****'}")
         self.auth_token = login(self.__account, self.__password)
         logger.info(f"auth_token: {self.auth_token[:8] + '****'}")
         logger.debug("获取api_token")

@@ -29,7 +29,6 @@ def login(account:str,password:str) -> str:
         "password":password,
         "mp_token":-1
     }
-    logger.debug(f"登录爱发电，账号：{account[4:]+'****'}")
     login_res = requests.post("https://afdian.com/api/passport/login", data=login_data, headers=headers) # 发送登录请求
     account_data = login_res.json()
     ec = account_data.get("ec")
