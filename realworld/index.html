@@ -1,6 +1,7 @@
 <!-- realworld.html -->
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <title>现实裂缝 - 递归校准</title>
@@ -12,6 +13,7 @@
             text-align: center;
             overflow: hidden;
         }
+
         .hologram {
             border: 2px solid #00ffff;
             box-shadow: 0 0 30px #00ffff;
@@ -20,18 +22,35 @@
             height: 480px;
             position: relative;
         }
+
         .subtitle {
             font-size: 1.5em;
             text-shadow: 0 0 15px #00ffff;
             animation: glitch 1s infinite;
         }
+
         @keyframes glitch {
-            0% { transform: translate(2px, 1px); }
-            25% { transform: translate(-1px, -2px); }
-            50% { transform: translate(3px, 2px); }
-            75% { transform: translate(-2px, 1px); }
-            100% { transform: translate(0); }
+            0% {
+                transform: translate(2px, 1px);
+            }
+
+            25% {
+                transform: translate(-1px, -2px);
+            }
+
+            50% {
+                transform: translate(3px, 2px);
+            }
+
+            75% {
+                transform: translate(-2px, 1px);
+            }
+
+            100% {
+                transform: translate(0);
+            }
         }
+
         .portal-button {
             background: #003366;
             color: #00ff9d;
@@ -41,21 +60,25 @@
             cursor: pointer;
             transition: all 0.3s;
         }
+
         .portal-button:hover {
             background: #005588;
             box-shadow: 0 0 25px #00ffff;
         }
     </style>
 </head>
-<body onload="playVideo()">
+
+<body>
     <h1 class="subtitle">维度校准成功...吗？</h1>
-    
+    <p align="center">请在下方检查加载进度...</p>
     <div class="hologram">
         <!-- Rick Astley经典MV -->
-        <video id="myVideo" width="854" height="480" controls>
-            <source src="/realworld/suprise.mp4" type="video/mp4">
-        您的浏览器不支持Video标签
-        </video>
+        <!-- <video id="myVideo" width="854" height="480" controls>
+            <source src="/realworld/suprise.mp4" type="video/mp4"> -->
+        <iframe id="myIframe" src="https://player.bilibili.com/player.html?aid=80433022&bvid=BV1GJ411x7h7&page=1&high_quality=1&danmaku=0&autoplay=1&muted=0&noFullScreenButton=1"
+            allowfullscreen="allowfullscreen" width="854" height="480" scrolling="no" frameborder="0"
+            sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts" style="display: none;">
+        </iframe>
     </div>
 
     <p>>> 检测到古老模因协议激活 <<</p>
@@ -82,21 +105,22 @@
                 const fadeIn = setInterval(() => {
                     opacity += 0.1;
                     p.style.opacity = opacity;
-                    if(opacity >= 1) clearInterval(fadeIn);
+                    if (opacity >= 1) clearInterval(fadeIn);
                 }, 50);
+                // 当最后一个文本显示完成后，显示 iframe
+                if (index === ritualText.length - 1) {
+                    setTimeout(() => {
+                        const myIframe = document.getElementById('myIframe');
+                        myIframe.style.display = 'block';
+                    }, 1000);
+                }
             }, index * 1500);
         });
-
-        function playVideo() {
-          var myVideo = document.getElementById("myVideo");
-          setTimeout(function() {
-            myVideo.play();
-          }, 1000);
-        }
 
         // 控制台彩蛋
         console.log("%c>> 你发现了互联网的古老智慧", "color:#00ff9d; font-size:16px;");
         console.log("%c这个仪式可以追溯到Web 1.0时代", "color:#00ffff;");
     </script>
 </body>
+
 </html>

@@ -7,14 +7,21 @@
   * 异常类型
     * [爱发电登录失败(AfdianLoginFailed)](/docs/types/exceptions/AfdianLoginFailed.md)
     * [爱发电响应异常(AfdianResponeException)](/docs/types/exceptions/AfdianResponeException.md)
+    * [爱发电消息获取失败(AfdianGetMsgFailed)](/docs/types/exceptions/AfdianGetMsgFailed.md)
+  * [机器人(Bot)](docs/types/bot.md)
 * 功能
   * 机器人(Bot)对象方法
-    * [开机/关机(run)](/docs/funcs/开机.md)
-    * [注册指令(register)](/docs/funcs/注册一个指令.md)
-    * [注册动作(at)](/docs/funcs/注册动作.md)
-    * [发送消息(send_msg)](/docs/funcs/发送消息.md)
+    * [开机/关机(run)](/docs/funcs/bot/开机.md)
+    * [注册指令(register)](/docs/funcs/bot/注册一个指令.md)
+    * [注册动作(at)](/docs/funcs/bot/注册动作.md)
+    * [发送消息(send_msg)](/docs/funcs/bot/发送消息.md)
   * Api方法
     * [登录(login)](/docs/funcs/api/登录.md)
     * [登出(logout)](/docs/funcs/api/登出.md)
     * [获取用户信息(get_user_info)](/docs/funcs/api/获取用户信息.md)
     * [查询赞助者信息(query_sponsor)](/docs/funcs/api/查询赞助者信息.md)
+    * [获取赞助者(get_sponsors)](/docs/funcs/api/获取赞助者.md)
+    * [获取api密钥(get_api_token)](/docs/funcs/api/获取api密钥.md)
+    * [获取签名(get_sign)](docs/funcs/api/获取签名.md)
+* 使用实例
+  * [获取机器人的信息](/docs/example/获取机器人的信息.md)

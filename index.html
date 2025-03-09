@@ -14,8 +14,6 @@
   <link rel="stylesheet" href="static/docsify/themes/dark.css" title="dark" disabled>
   <link rel="stylesheet" href="static/docsify/themes/theme-simple.css" title="theme-simple" disabled>
   <link rel="stylesheet" href="static/docsify/themes/theme-defaults.css" title="theme-defaults" disabled>
-  <!--支持mermaid-->
-  <!-- <link rel="stylesheet" href="static/mermaid/dist/mermaid.min.css"> -->
   <style>
     /*列宽度自适应不换行*/
     table td { width: 10%; white-space:nowrap; }
@@ -136,6 +134,20 @@
           // 搜索标题的最大程级, 1 - 6
           depth: 2
         },
+      'flexible-alerts':{
+            note: {
+                label: "批注",
+            },
+            tip: {
+                label: "提示",
+            },
+            warning: {
+                label: "警告",
+            },
+            attention: {
+                label: "注意!",
+            }
+        },
         // docsify 提供了一套插件机制，其中提供的钩子（hook）支持处理异步逻辑，可以很方便的扩展功能
         plugins: [
           function (hook, vm) {
@@ -189,5 +201,9 @@
     <script src="static/docsify-pagination/dist/docsify-pagination.min.js"></script>
     <!--在所有的代码块上添加一个简单的Click to copy按钮来允许用户从你的文档中轻易地复制代码-->
     <script src="static/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+    <!-- 图片放大缩小支持 -->
+    <script src="static/docsify/lib/plugins/zoom-image.min.js"></script>
+    <!-- 文本高亮 -->
+    <script src="static/docsify-plugin-flexible-alerts/dist/docsify-plugin-flexible-alerts.min.js"></script>
 </body>
 </html>
