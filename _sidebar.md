@@ -23,6 +23,8 @@
     * [获取赞助者(get_sponsors)](/docs/funcs/api/获取赞助者.md)
     * [获取api密钥(get_api_token)](/docs/funcs/api/获取api密钥.md)
     * [获取签名(get_sign)](docs/funcs/api/获取签名.md)
+    * [获取赞助方案(get_plans)](/docs/funcs/api/获取赞助方案.md)
+    * [获取商品(get_products)](/docs/funcs/api/获取商品.md)
 * 使用实例
   * [获取机器人的信息](/docs/example/获取机器人的信息.md)
   * [一机一码计算](/docs/example/一机一码计算.md)
