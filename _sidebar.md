@@ -26,3 +26,4 @@
 * 使用实例
   * [获取机器人的信息](/docs/example/获取机器人的信息.md)
   * [一机一码计算](/docs/example/一机一码计算.md)
+  * [天气查询](/docs/example/天气查询.md)
