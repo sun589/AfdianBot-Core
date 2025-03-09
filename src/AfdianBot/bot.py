@@ -56,10 +56,12 @@ class Bot:
         """
         注册一个指令
         """
-        def wrapper(func):
+        def reg(func):
             self.add_cmd(name, func, tupled_args)
-            return func
-        return wrapper
+            def wrapper(*args, **kwargs):
+                func(*args, **kwargs)
+            return wrapper
+        return reg
 
     def at(self, *action):
         """
