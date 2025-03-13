@@ -78,7 +78,7 @@
         <p id="loading-tip">请等待下方文字加载完成...</p>
     </div>
 
-    <p>>> 检测到古老模因TCP(Trolling Rickroll Protocol)协议激活 <<</p>
+    <p>>> 检测到古老模因TRP(Trolling Rickroll Protocol)协议激活 <<</p>
     <p>这是人类最古老的网络仪式</p>
 
     <button class="portal-button" onclick="window.location.href='/'">
@@ -114,13 +114,9 @@
                             // 创建并显示iframe
                             const hologram = document.getElementById('hologram');
                             const iframe = document.createElement('iframe');
-                            iframe.src = 'https://player.bilibili.com/player.html?aid=80433022&bvid=BV1GJ411x7h7&page=1&as_wide=1&high_quality=1&danmaku=0&autoplay=1';
-                            iframe.allowfullscreen = 'allowfullscreen';
+                            iframe.src = 'https://www.bilibili.com/blackboard/html5mobileplayer.html?aid=80433022&bvid=BV1GJ411x7h7&page=1&danmaku=0&autoplay=1';
                             iframe.width = '854';
                             iframe.height = '480';
-                            iframe.scrolling = 'no';
-                            iframe.frameborder = '0';
-                            iframe.sandbox = 'allow-top-navigation allow-same-origin allow-forms allow-scripts';
                             hologram.appendChild(iframe);
                         }
                     }
