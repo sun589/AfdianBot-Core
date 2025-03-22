@@ -12,11 +12,12 @@ class Msg:
     send_time: 发送时间
     """
     def __init__(self, data: dict):
-        self.msg_type = data["message"].get("type")
-        self.msg_id = data["message"].get("msg_id")
-        self.id = data["message"].get("id")
-        self.sender_id = data["message"].get("sender")
-        self.send_time = data["message"].get("send_time")
+        self.sender_type: str = data.get("type")
+        self.msg_type: str = data["message"].get("type")
+        self.msg_id: int = data["message"].get("msg_id")
+        self.id: int = data["message"].get("id")
+        self.sender_id: str = data["message"].get("sender")
+        self.send_time: int = data["message"].get("send_time")
 
 class TextMsg(Msg):
     """
@@ -30,7 +31,7 @@ class TextMsg(Msg):
     """
     def __init__(self, data: dict):
         super().__init__(data)
-        self.content = data["message"].get("content")
+        self.content: str = data["message"].get("content")
 
     def __str__(self):
         return self.content
@@ -58,14 +59,14 @@ class SponsorMsg(Msg):
     def __init__(self, data: dict):
         super().__init__(data)
         content = data["message"]['content']
-        self.amount = float(content.get("total_amount"))
-        self.real_amount = float(content.get("show_amount"))
-        self.remark = content.get("remark")
-        self.plan_id = content['plan'].get("plan_id")
-        self.phone = content['ext']['address'].get("phone")
-        self.address = content['ext']['address'].get("address")
-        self.recipient = content['ext']['address'].get("name")
-        self.pay_type = content.get("pay_type")
-        self.isupgrade = bool(content.get("is_upgrade"))
-        self.isredeem = bool(content['ext'].get("redeem"))
-        self.redeem_id = content['ext'].get("redeem")
+        self.amount: float = float(content.get("total_amount"))
+        self.real_amount: float = float(content.get("show_amount"))
+        self.remark: str = content.get("remark")
+        self.plan_id: str = content['plan'].get("plan_id")
+        self.phone: str = content['ext']['address'].get("phone")
+        self.address: str = content['ext']['address'].get("address")
+        self.recipient: str = content['ext']['address'].get("name")
+        self.pay_type: int = content.get("pay_type")
+        self.isupgrade: bool = bool(content.get("is_upgrade"))
+        self.isredeem: bool = bool(content['ext'].get("redeem"))
+        self.redeem_id: str = content['ext'].get("redeem")

@@ -1,10 +1,11 @@
 import threading
-from inspect import signature
 from .exceptions import AfdianResponeException, AfdianGetMsgFailed
+from inspect import getfullargspec
 from .utils import login,logout
 from .utils import get_api_token
 from .utils import types
 from .utils import bot_vars
+from .utils import ctx
 import logging
 from fake_useragent import FakeUserAgent
 import time
@@ -31,8 +32,16 @@ class Bot:
         self.use_multithreading = False
         self.local_latest_msg_id = None
         self.running = False
+        self.pass_args = False
+        console = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s',datefmt='%Y-%m-%d %H:%M:%S')
+        console.setFormatter(formatter)
+        logger.addHandler(console)
 
     def _login(self):
+        """
+        机器人内部登录函数
+        """
         logger.info("获取auth_token")
         logger.debug(f"登录爱发电，账号：{self.__account[:4] + '****'}")
         self.auth_token = login(self.__account, self.__password)
@@ -53,23 +62,26 @@ class Bot:
         logger.info("user_id：" + self.user_id)
         logger.info(f"{username}登录成功!")
 
-    def register(self, name, tupled_args=False):
+    def register(self, name):
         """
         注册一个指令
         """
         def reg(func):
-            self.add_cmd(name, func, tupled_args)
-            def wrapper(*args, **kwargs):
-                func(*args, **kwargs)
-            return wrapper
+            self.add_cmd(name, func)
+            return func
         return reg
+
+    def add_cmd(self, cmd, func):
+        """
+        以函数的形式添加一个指令
+        """
+        self.__mapping[cmd] = func
 
     def at(self, *action):
         """
         设置函数在指定动作发生时执行,注意，当动作为sponsorship时，func的参数为SponsorMsg类型
         而在其他情况下，均不会传参
         :param action: startup/shutdown/sponsorship/unknown_cmd
-        :return:
         """
         def wrapper(func):
             self.func_at(func, *action)
@@ -80,92 +92,93 @@ class Bot:
         同at装饰器的介绍，通过函数的形式添加一个动作
         :param action: startup/shutdown/sponsorship/unknown_cmd
         :param func:
-        :return:
         """
         for i in action:
             self.__actions_mapping_funcs[i].add(func)
 
-    def add_cmd(self, cmd, func, tupled_args=False):
+    def _handle_sponsorship_msg(self, msg_data):
         """
-        以函数的形式添加一个指令
+        处理赞助消息
         """
-        self.__mapping[cmd] = (func, tupled_args)
+        msg = types.SponsorMsg(msg_data)
+        logger.info(f"收到赞助消息,金额：{msg.amount} 用户id:{msg.sender_id}")
+        for f in self.__actions_mapping_funcs['sponsorship']:
+            try:
+                f(msg)
+            except:
+                logger.error(f"在sponsorship动作出错:\n{traceback.format_exc()}")
 
-    def _reply(self, dialog):
+    def _handle_text_msg(self, msg, cmd) -> bool:
+        """
+        处理文本消息
+        """
+        match = re.match(cmd, msg.content)
+        if not match:
+            return False
+        try:
+            args = match.groups()
+            with ctx.MessageContext(msg=msg, args=args):
+                if self.pass_args:
+                    self.__mapping[cmd](msg, args)
+                else:
+                    self.__mapping[cmd]()
+        except:
+            logger.error(f"在{cmd}命令出错:\n{traceback.format_exc()}")
+        return True
+
+    def _reply(self, dialog: dict):
         """
         处理消息，执行函数
-        :return:
         """
         user_id = dialog.get("user")['user_id']
-        msg_res = self.__session.get(f"https://afdian.com/api/message/messages?user_id={user_id}&type=new&message_id={self.local_latest_msg_id}")
-        msg_list = msg_res.json().get("data")['list']
+        msg_res = self.__session.get(
+            f"https://afdian.com/api/message/messages?user_id={user_id}&type=new&message_id={self.local_latest_msg_id}"
+        )
         msg_data = msg_res.json()
-        if msg_data.get("ec") == 200:
-            for i in msg_list:
-                if i.get('type') == "send": # 禁止回复机器人自己的消息
-                    continue
-                logger.debug(f"收到消息：{i['message'].get('content')}")
-                msg = types.TextMsg(i)
-                already_reply = False # 标记是否已经处理回复过
-                if i['message'].get('type') == 2:  # 当消息为赞助消息
-                    msg = types.SponsorMsg(i)
-                    for f in self.__actions_mapping_funcs['sponsorship']:
-                        f(msg)
-                    continue
-                elif i['message'].get('type') in [1, 7]:  # 当消息为文本消息
-                    for j in self.__mapping.keys():
-                        match = re.match(j,i['message'].get('content'))
-                        if not match: # 如果不匹配则跳过
-                            continue
-                        needed_args = len(signature(self.__mapping[j][0]).parameters) - 1 # 减一留给msg
-                        if needed_args > 0:
-                            args = match.groups()
-                            if self.__mapping[j][1]: # 判断是否需要将参数作为元组传入
-                                self.__mapping[j][0](msg, args)
-                                break
-                            if len(args) < needed_args: # 对于参数不足的情况，填充None
-                                args = args + (None,) * (needed_args - len(args))
-                            elif len(args) > needed_args:# 对于参数过多的情况，截断，避免参数过多的情况
-                                args = args[:needed_args]
-                            self.__mapping[j][0](msg,*args)
-                        else:
-                            self.__mapping[j][0](msg)
-                        already_reply = True
-                else:
-                    logger.warning(
-                        f"获取到未知的消息类型{i['message'].get('type')}! 当前处理msg_id:{i['message'].get('message_id')} 时间戳:{i['message'].get('send_time')}"
-                    )
-                if not already_reply: # 当遍历完毕没有一个匹配的时候，执行未知指令的函数
-                    if i['message'].get('type') in [1,7]: # 仅文本消息才执行未知指令的函数，避免误判
-                        for j in self.__actions_mapping_funcs['unknown_cmd']:
-                            msg = types.TextMsg(i)
-                            j(msg)
-        else:
+        if msg_data.get("ec") != 200:
             raise AfdianGetMsgFailed(msg_data.get("ec"), msg_data.get("em"))
+        for msg_data in msg_data['data']['list']:
+            msg = types.Msg(msg_data)
+            if msg.sender_type == "send":
+                continue
+            if msg.msg_type == 2:
+                self._handle_sponsorship_msg(msg_data)
+                continue
+            if msg.msg_type not in [1, 7]:
+                logger.warning(
+                    f"获取到未知的消息类型{msg.msg_type}! 当前处理msg_id:{msg.msg_id} 时间戳:{msg.send_time}"
+                )
+                continue
+            msg = types.TextMsg(msg_data)
+            logger.debug(f"收到消息：{msg.content} 用户id:{msg_data['message'].get('sender')}")
+            for cmd in self.__mapping.keys():
+                if self._handle_text_msg(msg, cmd):
+                    break
+            else:
+                for cmd in self.__actions_mapping_funcs['unknown_cmd']:
+                    cmd(msg)
 
     def _all_reply(self, dialogs:list):
         """
         回复所有消息
         :return:
         """
-        tasks = []
-        for dialog in dialogs:
-            if self.use_multithreading:
-                thread = threading.Thread(target=self._reply, args=dialog)
-                tasks.append(thread)
-                thread.start()
-            else:
-                self._reply(dialog)
         if self.use_multithreading:
-            for task in tasks:
-                task.join()
+            # 创建线程列表
+            threads = [threading.Thread(target=self._reply, args=(dialog,)) for dialog in dialogs]
+            # 启动所有线程
+            for thread in threads:
+                thread.start()
+        else:
+            # 单线程处理所有对话
+            for dialog in dialogs:
+                self._reply(dialog)
 
     def send_msg(self, msg,user_id:str):
         """
         发送消息,只支持文本消息
-        :param user_id: 用户id
         :param msg: 消息内容
-        :return:
+        :param user_id: 用户id,默认使用处理对应消息的user_id
         """
         msg = str(msg)
         data = {
@@ -182,28 +195,30 @@ class Bot:
         if send_res.get("ec") != 200:
             raise AfdianResponeException(send_res.get("ec"), send_res.get("em"))
 
-    def run(self, no_log=False, wait=10, debug=False, threaded=False):
+    def run(self, no_log=False, wait=10, debug=False, threaded=False, pass_args=False):
         """
         运行机器人,默认使用单线程模式,可选择多线程模式
         :param no_log: 是否不输出日志
         :param wait: 拉取消息列表的间隔时间
         :param debug: 是否开启debug模式(将输出debug日志到控制台)
         :param threaded: 是否使用多线程模式
-        :return:
         """
-        if no_log:
-            level = logging.WARNING
-        elif debug:
-            level = logging.DEBUG
-        else:
-            level = logging.INFO
-        logging.basicConfig(
-            level=level,
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S')
+        # 根据条件选择日志级别
+        level = (
+            logging.WARNING if no_log
+            else logging.DEBUG if debug
+            else logging.INFO
+        )
+        if not pass_args:
+            logger.warning(
+            f"在v1.0.4后将使用上下文的方式而非传参方式来传递msg和命令参数,你可将参数pass_args改为True更为传参方式(详见文档)"
+        )
+            logger.warning("本警告将在若干版本后移除，你可调用本库config.disable_warning禁用警告")
+        logger.setLevel(level)
         logger.info(f"当前模式：{'多线程' if threaded else '单线程'}")
         logger.info("开始启动机器人")
         self.use_multithreading = threaded
+        self.pass_args = pass_args
         logger.info("登录爱发电")
         self._login()
         cookies = {
@@ -226,8 +241,8 @@ class Bot:
         logger.info("机器人已准备就绪，开始工作!")
         while self.running:
             try:
-                check_new_msg_res = self.__session.get(f"https://afdian.com/api/my/check?local_new_msg_id={self.local_latest_msg_id}")
-                check_new_msg_data = check_new_msg_res.json()
+                check_new_msg_req = self.__session.get(f"https://afdian.com/api/my/check?local_new_msg_id={self.local_latest_msg_id}")
+                check_new_msg_data = check_new_msg_req.json()
                 if check_new_msg_data.get("ec") == 200:
                     unread_msg_num = check_new_msg_data.get("data")['unread_message_num']
                     if unread_msg_num > 0:
@@ -247,7 +262,6 @@ class Bot:
             except KeyboardInterrupt:
                 self.stop()
             except:
-                logger.error("报错力:(")
                 logger.error(traceback.format_exc())
 
     def stop(self):

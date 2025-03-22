@@ -1,5 +1,5 @@
 """
-本文件用于共享变量
+用于共享变量
 """
 def get(name):
     return vars[name]

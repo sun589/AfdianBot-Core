@@ -17,4 +17,4 @@ def hello(msg:AfdianBot.types.TextMsg):
 # bot.run(threded=True)
 bot.run()
 ```
-**更多文档内容详见[AfdianBot-Core文档](https://afdbot.us.kg)**
+**更多文档内容详见[AfdianBot-Core文档](https://sun589.github.io/AfdianBot-Core)**
