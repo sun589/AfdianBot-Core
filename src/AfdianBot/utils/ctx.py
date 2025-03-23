@@ -1,3 +1,6 @@
+"""
+用于上下文变量
+"""
 from threading import local
 from .types import TextMsg, SponsorMsg
 from typing import Union
@@ -10,7 +13,10 @@ def get_current_args() -> tuple:
     return getattr(_local_ctx, 'args', ())
 
 def get_current_msg() -> Union[TextMsg,SponsorMsg]:
-    return getattr(_local_ctx, 'msg', None)
+    try:
+        return getattr(_local_ctx, 'msg')
+    except AttributeError:
+        raise LookupError("No message context found")
 
 class MessageContext:
 

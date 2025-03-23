@@ -1,8 +1,10 @@
+"""
+机器人主类
+"""
 import threading
 from .exceptions import AfdianResponeException, AfdianGetMsgFailed
-from inspect import getfullargspec
-from .utils import login,logout
-from .utils import get_api_token
+from .utils.api import login,logout
+from .utils.api import get_api_token
 from .utils import types
 from .utils import bot_vars
 from .utils import ctx
@@ -12,9 +14,21 @@ import time
 import requests
 import re
 import traceback
+from typing import Callable
+
+from .utils.ctx import get_current_msg
 
 logger = logging.getLogger("AfdianBot")
 __all__ = ["Bot"]
+
+def _run_with_catch_exception(name: str, func: Callable, *args):
+    """
+    专门用于处理异常的函数
+    """
+    try:
+        func(*args)
+    except:
+        logger.error(f"在{name}出错:\n{traceback.format_exc()}")
 
 class Bot:
 
@@ -32,9 +46,9 @@ class Bot:
         self.use_multithreading = False
         self.local_latest_msg_id = None
         self.running = False
-        self.pass_args = False
+        self.pass_msg = False
         console = logging.StreamHandler()
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s',datefmt='%Y-%m-%d %H:%M:%S')
+        formatter = logging.Formatter('[%(asctime)s %(levelname)s] %(name)s - %(message)s',datefmt='%Y-%m-%d %H:%M:%S')
         console.setFormatter(formatter)
         logger.addHandler(console)
 
@@ -62,20 +76,20 @@ class Bot:
         logger.info("user_id：" + self.user_id)
         logger.info(f"{username}登录成功!")
 
-    def register(self, name):
+    def register(self, name, tupled_args=False) -> Callable:
         """
         注册一个指令
         """
         def reg(func):
-            self.add_cmd(name, func)
+            self.add_cmd(name, func, tupled_args)
             return func
         return reg
 
-    def add_cmd(self, cmd, func):
+    def add_cmd(self, cmd, func, tupled_args=False):
         """
         以函数的形式添加一个指令
         """
-        self.__mapping[cmd] = func
+        self.__mapping[cmd] = (func, tupled_args)
 
     def at(self, *action):
         """
@@ -85,6 +99,7 @@ class Bot:
         """
         def wrapper(func):
             self.func_at(func, *action)
+            return func
         return wrapper
 
     def func_at(self, func, *action):
@@ -94,19 +109,21 @@ class Bot:
         :param func:
         """
         for i in action:
-            self.__actions_mapping_funcs[i].add(func)
+            try:
+                self.__actions_mapping_funcs[i].add(func)
+            except KeyError:
+                raise ValueError(f"动作{i}不存在!")
 
-    def _handle_sponsorship_msg(self, msg_data):
+    def _handle_sponsorship_msg(self, msg_data: dict):
         """
         处理赞助消息
         """
         msg = types.SponsorMsg(msg_data)
         logger.info(f"收到赞助消息,金额：{msg.amount} 用户id:{msg.sender_id}")
         for f in self.__actions_mapping_funcs['sponsorship']:
-            try:
-                f(msg)
-            except:
-                logger.error(f"在sponsorship动作出错:\n{traceback.format_exc()}")
+            with ctx.MessageContext(msg=msg):
+                if self.pass_msg: _run_with_catch_exception("sponsorship动作", f,msg)
+                else: _run_with_catch_exception("sponsorship动作", f)
 
     def _handle_text_msg(self, msg, cmd) -> bool:
         """
@@ -115,15 +132,13 @@ class Bot:
         match = re.match(cmd, msg.content)
         if not match:
             return False
-        try:
-            args = match.groups()
-            with ctx.MessageContext(msg=msg, args=args):
-                if self.pass_args:
-                    self.__mapping[cmd](msg, args)
-                else:
-                    self.__mapping[cmd]()
-        except:
-            logger.error(f"在{cmd}命令出错:\n{traceback.format_exc()}")
+        args = match.groups()
+        if self.__mapping[cmd][1]: args = (args,)
+        with ctx.MessageContext(msg=msg):
+            if self.pass_msg:
+                _run_with_catch_exception(cmd+"命令", self.__mapping[cmd][0], msg,*args)
+            else:
+                _run_with_catch_exception(cmd+"命令", self.__mapping[cmd][0], *args)
         return True
 
     def _reply(self, dialog: dict):
@@ -161,7 +176,6 @@ class Bot:
     def _all_reply(self, dialogs:list):
         """
         回复所有消息
-        :return:
         """
         if self.use_multithreading:
             # 创建线程列表
@@ -174,12 +188,14 @@ class Bot:
             for dialog in dialogs:
                 self._reply(dialog)
 
-    def send_msg(self, msg,user_id:str):
+    def send_msg(self, msg, user_id:str=None):
         """
         发送消息,只支持文本消息
         :param msg: 消息内容
         :param user_id: 用户id,默认使用处理对应消息的user_id
         """
+        if user_id is None:
+            user_id = get_current_msg().sender_id
         msg = str(msg)
         data = {
             "user_id":user_id,
@@ -195,13 +211,14 @@ class Bot:
         if send_res.get("ec") != 200:
             raise AfdianResponeException(send_res.get("ec"), send_res.get("em"))
 
-    def run(self, no_log=False, wait=10, debug=False, threaded=False, pass_args=False):
+    def run(self, no_log=False, wait=10, debug=False, threaded=False, pass_msg=False):
         """
         运行机器人,默认使用单线程模式,可选择多线程模式
         :param no_log: 是否不输出日志
         :param wait: 拉取消息列表的间隔时间
         :param debug: 是否开启debug模式(将输出debug日志到控制台)
         :param threaded: 是否使用多线程模式
+        :param pass_msg: 是否使用传参方式传递msg
         """
         # 根据条件选择日志级别
         level = (
@@ -209,16 +226,16 @@ class Bot:
             else logging.DEBUG if debug
             else logging.INFO
         )
-        if not pass_args:
+        if not pass_msg:
             logger.warning(
-            f"在v1.0.4后将使用上下文的方式而非传参方式来传递msg和命令参数,你可将参数pass_args改为True更为传参方式(详见文档)"
+            f"在v1.0.4后将使用上下文的方式而非传参方式来传递msg,你可将参数pass_msg改为True更为传参方式(详见文档)"
         )
-            logger.warning("本警告将在若干版本后移除，你可调用本库config.disable_warning禁用警告")
+            logger.warning("本警告将在若干版本后移除，你可调用本库config.disable_warnings禁用警告")
         logger.setLevel(level)
         logger.info(f"当前模式：{'多线程' if threaded else '单线程'}")
         logger.info("开始启动机器人")
         self.use_multithreading = threaded
-        self.pass_args = pass_args
+        self.pass_msg = pass_msg
         logger.info("登录爱发电")
         self._login()
         cookies = {
@@ -237,7 +254,7 @@ class Bot:
             self.local_latest_msg_id = latest_msg_list[0].get("latest_msg_id")
             logger.debug(f"latest_msg_id：{self.local_latest_msg_id}")
         for i in self.__actions_mapping_funcs['startup']:
-            i()
+            _run_with_catch_exception("startup动作", i)
         logger.info("机器人已准备就绪，开始工作!")
         while self.running:
             try:
@@ -267,11 +284,13 @@ class Bot:
     def stop(self):
         """
         停止机器人
-        :return:
         """
         logger.info("销毁auth_token中")
         logout(self.auth_token)
+        bot_vars.set("auth_token",None)
+        bot_vars.set("user_id",None)
+        bot_vars.set("api_token",None)
         logger.info("正在停止机器人...")
         self.running = False
         for i in self.__actions_mapping_funcs['shutdown']:
-            i()
+            _run_with_catch_exception("shutdown动作", i)

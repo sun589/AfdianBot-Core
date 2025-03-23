@@ -12,7 +12,17 @@ from hashlib import md5
 
 logger = logging.getLogger("AfdianBot")
 
-__all__ = ["login","logout","get_user_info","get_sponsors","get_api_token","get_sign"]
+__all__ = [
+    "login",
+    "logout",
+    "get_user_info",
+    "get_sponsors",
+    "get_api_token",
+    "get_sign",
+    "query_sponsor",
+    "get_plans",
+    "get_products"
+]
 
 def login(account:str,password:str) -> str:
     """
