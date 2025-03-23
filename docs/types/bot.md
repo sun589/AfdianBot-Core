@@ -10,3 +10,4 @@
 | auth_token          | string  | 机器人的auth_token |
 | api_token           | string  | 机器人的api_token  |
 | user_id             | string  | 机器人的user_id    |
+| pass_msg            | boolean | 是否将msg作为参数传递   |

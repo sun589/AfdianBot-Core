@@ -6,7 +6,7 @@ import AfdianBot
 bot = AfdianBot.Bot(account="xxx",password="xxxx") # 实例化一个bot
 
 @bot.register("/test1")
-def test1(msg:AfdianBot.types.TextMsg):
+def test1():
     print(AfdianBot.api.get_api_token()) # 运行机器人时可忽略auth_token,将自动填入bot的auth_token
 
 print(AfdianBot.api.get_api_token(auth_token="xxxx")) # 单用时请传入auth_token

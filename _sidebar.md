@@ -25,6 +25,12 @@
     * [获取签名(get_sign)](docs/funcs/api/获取签名.md)
     * [获取赞助方案(get_plans)](/docs/funcs/api/获取赞助方案.md)
     * [获取商品(get_products)](/docs/funcs/api/获取商品.md)
+  * 上下文方法
+    * [获取当前消息(get_current_msg)](/docs/funcs/context/获取当前消息.md)
+    * [获取当前参数(get_current_args)](/docs/funcs/context/获取当前参数.md)
+  * 配置方法
+    * [禁用警告(disable_warnings)](/docs/funcs/config/禁用警告.md)
+  * [日志](/docs/funcs/日志.md)
 * 使用实例
   * [获取机器人的信息](/docs/example/获取机器人的信息.md)
   * [一机一码计算](/docs/example/一机一码计算.md)
