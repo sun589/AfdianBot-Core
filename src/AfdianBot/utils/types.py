@@ -38,7 +38,7 @@ class TextMsg(Msg):
 
 class SponsorMsg(Msg):
     """
-    赞助消息
+    赞助消息,继承自Msg
     msg_type: 消息类型,只有send/receive
     msg_id: 消息id
     id: 消息id

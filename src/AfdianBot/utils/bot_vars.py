@@ -2,13 +2,13 @@
 用于共享变量
 """
 def get(name):
-    return vars[name]
+    return _vars[name]
 
-def set(name,value):
-    global vars
-    vars[name] = value
+def set_var(name, value):
+    global _vars
+    _vars[name] = value
 
-vars = {
+_vars = {
     "auth_token":None,
     "api_token":None,
     "user_id":None

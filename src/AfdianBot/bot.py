@@ -70,9 +70,9 @@ class Bot:
         profile_res = requests.get("https://afdian.com/api/my/profile", cookies={"auth_token": self.auth_token}, headers={"User-Agent": FakeUserAgent().random}).json()
         self.user_id = profile_res['data']['user'].get('user_id')
         username = profile_res['data']['user'].get('name')
-        bot_vars.set("auth_token",self.auth_token)
-        bot_vars.set("user_id",self.user_id)
-        bot_vars.set("api_token",self.api_token)
+        bot_vars.set_var("auth_token", self.auth_token)
+        bot_vars.set_var("user_id", self.user_id)
+        bot_vars.set_var("api_token", self.api_token)
         logger.info("user_id：" + self.user_id)
         logger.info(f"{username}登录成功!")
 
@@ -165,13 +165,18 @@ class Bot:
                 )
                 continue
             msg = types.TextMsg(msg_data)
-            logger.debug(f"收到消息：{msg.content} 用户id:{msg_data['message'].get('sender')}")
+            # chr(10) -> "\n"
+            logger.debug(f"收到消息：{msg.content.replace(chr(10),'[换行]')} 用户id:{msg_data['message'].get('sender')}")
             for cmd in self.__mapping.keys():
                 if self._handle_text_msg(msg, cmd):
                     break
             else:
-                for cmd in self.__actions_mapping_funcs['unknown_cmd']:
-                    cmd(msg)
+                for f in self.__actions_mapping_funcs['unknown_cmd']:
+                    with ctx.MessageContext(msg=msg):
+                        if self.pass_msg:
+                            _run_with_catch_exception("unknown_cmd动作", f, msg)
+                        else:
+                            _run_with_catch_exception("unknown_cmd动作", f)
 
     def _all_reply(self, dialogs:list):
         """
@@ -260,14 +265,13 @@ class Bot:
             try:
                 check_new_msg_req = self.__session.get(f"https://afdian.com/api/my/check?local_new_msg_id={self.local_latest_msg_id}")
                 check_new_msg_data = check_new_msg_req.json()
-                if check_new_msg_data.get("ec") == 200:
-                    unread_msg_num = check_new_msg_data.get("data")['unread_message_num']
-                    if unread_msg_num > 0:
-                        dialogs = self.__session.get("https://afdian.com/api/message/dialogs?page=1&unread=1").json().get("data").get("list")
-                        self._all_reply(dialogs)
-                        self.local_latest_msg_id = dialogs[0].get("latest_msg_id")
-                else:
+                if check_new_msg_data.get("ec") != 200:
                     raise AfdianGetMsgFailed(check_new_msg_data.get("ec"), check_new_msg_data.get("em"))
+                unread_msg_num = check_new_msg_data.get("data")['unread_message_num']
+                if unread_msg_num > 0:
+                    dialogs = self.__session.get("https://afdian.com/api/message/dialogs?page=1&unread=1").json().get("data").get("list")
+                    self._all_reply(dialogs)
+                    self.local_latest_msg_id = dialogs[0].get("latest_msg_id")
                 time.sleep(wait)
             except AfdianResponeException:
                 logger.error(f"爱发电接口返回错误：{traceback.format_exc()}")
@@ -287,9 +291,9 @@ class Bot:
         """
         logger.info("销毁auth_token中")
         logout(self.auth_token)
-        bot_vars.set("auth_token",None)
-        bot_vars.set("user_id",None)
-        bot_vars.set("api_token",None)
+        bot_vars.set_var("auth_token", None)
+        bot_vars.set_var("user_id", None)
+        bot_vars.set_var("api_token", None)
         logger.info("正在停止机器人...")
         self.running = False
         for i in self.__actions_mapping_funcs['shutdown']:
