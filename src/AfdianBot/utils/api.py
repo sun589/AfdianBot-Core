@@ -132,7 +132,7 @@ def query_sponsor(user_id:str=None,auth_token:str=None) -> dict:
 
 def get_sponsors(num:int=20,page:int=1,target:str=None,user_id:str=None,api_token:str=None):
     """
-    获取指定数量赞助者
+    获取指定数量赞助者/订单
     :param num: 数量
     :param page: 页数
     :param target: 查询目标的user_id,可选
