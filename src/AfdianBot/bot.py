@@ -135,7 +135,7 @@ class Bot:
             return False
         args = match.groups()
         if self.__mapping[cmd][1]: args = (args,)
-        with ctx.MessageContext(msg=msg):
+        with ctx.MessageContext(msg=msg, args=args):
             if self.pass_msg:
                 _run_with_catch_exception(cmd+"命令", self.__mapping[cmd][0], msg,*args)
             else:
