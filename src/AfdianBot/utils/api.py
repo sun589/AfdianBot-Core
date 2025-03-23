@@ -7,6 +7,7 @@ import time
 from hashlib import md5
 from fake_useragent import FakeUserAgent
 import logging
+from .ctx import get_current_msg
 
 from ..exceptions import *
 from . import bot_vars
@@ -101,15 +102,17 @@ def get_user_info(user_id:str) -> dict:
         "avatar":get_profile_res.json().get("data").get("user").get("avatar"),
     }
 
-def query_sponsor(user_id:str,auth_token:str=None) -> dict:
+def query_sponsor(user_id:str=None,auth_token:str=None) -> dict:
     """
     获取用户对机器人赞助的信息(如金额，方案等)
     :param user_id: 查询的user_id
     :param auth_token: auth_token,默认使用机器人的auth_token
     :return: 赞助信息(见使用文档)
     """
-    if not auth_token:
+    if auth_token is None:
         auth_token = bot_vars.get("auth_token")
+    if user_id is None:
+        user_id = get_current_msg().sender_id
     headers = {
         "User-Agent":FakeUserAgent().random
     }
