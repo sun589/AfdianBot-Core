@@ -1,6 +1,9 @@
 """
 用于共享变量
 """
+
+__all__ = ['get','set_var']
+
 def get(name):
     return _vars[name]
 
