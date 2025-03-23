@@ -3,12 +3,13 @@
 """
 import json
 import requests
-from ..exceptions import *
-from fake_useragent import FakeUserAgent
-import logging
-from . import bot_vars
 import time
 from hashlib import md5
+from fake_useragent import FakeUserAgent
+import logging
+
+from ..exceptions import *
+from . import bot_vars
 
 logger = logging.getLogger("AfdianBot")
 

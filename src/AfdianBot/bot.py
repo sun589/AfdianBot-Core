@@ -2,12 +2,6 @@
 机器人主类
 """
 import threading
-from .exceptions import AfdianResponeException, AfdianGetMsgFailed
-from .utils.api import login,logout
-from .utils.api import get_api_token
-from .utils import types
-from .utils import bot_vars
-from .utils import ctx
 import logging
 from fake_useragent import FakeUserAgent
 import time
@@ -16,9 +10,16 @@ import re
 import traceback
 from typing import Callable
 
+from .exceptions import AfdianResponeException, AfdianGetMsgFailed
+from .utils.api import login,logout
+from .utils.api import get_api_token
+from .utils import types
+from .utils import bot_vars
+from .utils import ctx
 from .utils.ctx import get_current_msg
 
 logger = logging.getLogger("AfdianBot")
+fua = FakeUserAgent()
 __all__ = ["Bot"]
 
 def _run_with_catch_exception(name: str, func: Callable, *args):
@@ -67,7 +68,7 @@ class Bot:
         else:
             logger.debug("用户并未申请api_token!")
         logger.info("获取用户信息")
-        profile_res = requests.get("https://afdian.com/api/my/profile", cookies={"auth_token": self.auth_token}, headers={"User-Agent": FakeUserAgent().random}).json()
+        profile_res = requests.get("https://afdian.com/api/my/profile", cookies={"auth_token": self.auth_token}, headers={"User-Agent": fua.random}).json()
         self.user_id = profile_res['data']['user'].get('user_id')
         username = profile_res['data']['user'].get('name')
         bot_vars.set_var("auth_token", self.auth_token)
@@ -160,23 +161,25 @@ class Bot:
                 self._handle_sponsorship_msg(msg_data)
                 continue
             if msg.msg_type not in [1, 7]:
-                logger.warning(
+                logger.error(
                     f"获取到未知的消息类型{msg.msg_type}! 当前处理msg_id:{msg.msg_id} 时间戳:{msg.send_time}"
                 )
                 continue
             msg = types.TextMsg(msg_data)
             # chr(10) -> "\n"
-            logger.debug(f"收到消息：{msg.content.replace(chr(10),'[换行]')} 用户id:{msg_data['message'].get('sender')}")
+            if len(msg.content) >= 45:
+                logger.debug(f"收到消息：{msg.content[:45].replace(chr(10),'[换行]')}... 用户id:{msg_data['message'].get('sender')}")
+            else:
+                logger.debug(f"收到消息：{msg.content.replace(chr(10),'[换行]')} 用户id:{msg_data['message'].get('sender')}")
             for cmd in self.__mapping.keys():
                 if self._handle_text_msg(msg, cmd):
                     break
             else:
                 for f in self.__actions_mapping_funcs['unknown_cmd']:
                     with ctx.MessageContext(msg=msg):
-                        if self.pass_msg:
-                            _run_with_catch_exception("unknown_cmd动作", f, msg)
-                        else:
-                            _run_with_catch_exception("unknown_cmd动作", f)
+                        if self.pass_msg: _run_with_catch_exception("unknown_cmd动作", f, msg)
+                        else: _run_with_catch_exception("unknown_cmd动作", f)
+                            
 
     def _all_reply(self, dialogs:list):
         """
@@ -209,7 +212,7 @@ class Bot:
         }
         cookies = {"auth_token": self.auth_token}
         headers = {
-            "User-Agent": FakeUserAgent().random
+            "User-Agent": fua.random
         }
         send_req = requests.post("https://afdian.com/api/message/send",headers=headers,data=data,cookies=cookies)
         send_res = send_req.json()
@@ -247,7 +250,7 @@ class Bot:
             "auth_token": self.auth_token
         }
         headers = {
-            "User-Agent": FakeUserAgent().random
+            "User-Agent": fua.random
         }
         self.__session = requests.session()
         self.__session.cookies.update(cookies)
