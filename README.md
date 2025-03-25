@@ -2,13 +2,14 @@
 一款轻量化，简单且易用的爱发电机器人库
 
 ## 快速入门
-``` python
+```python
 import AfdianBot
 
 bot = AfdianBot.Bot(account="xxxxx", password="xxxx") # 填写账号密码
 
 @bot.register("hello") # 注册一个指令
-def hello(msg:AfdianBot.types.TextMsg):
+def hello():
+    msg = AfdianBot.ctx.get_current_msg()
     sender_name = AfdianBot.api.get_user_info(msg.sender_id)['name']
     bot.send_msg(f"hello {sender_name}!", msg.sender_id) # 回复消息至对方
 
