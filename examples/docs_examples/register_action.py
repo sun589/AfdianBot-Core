@@ -12,11 +12,12 @@ def shutdown_func():
     print("Bye bye!")
 
 @bot.at("sponsorship") # 被赞助时执行
-def sponsorship_func(msg:AfdianBot.types.SponsorMsg):
-    bot.send_msg(f"你赞助了{msg.amount}元!",msg.sender_id)
+def sponsorship_func():
+    msg = AfdianBot.ctx.get_current_msg()
+    bot.send_msg(f"你赞助了{msg.amount}元!")
 
 @bot.at("unknown_cmd") # 当发现没有匹配的指令的时候执行
-def unknown_cmd_func(msg:AfdianBot.types.TextMsg):
-    bot.send_msg("我不明白你在说什么!",msg.sender_id)
+def unknown_cmd_func():
+    bot.send_msg("我不明白你在说什么!")
 
 bot.run()

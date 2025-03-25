@@ -11,7 +11,7 @@ bot = AfdianBot.Bot(account="xxx", password="xxxx")  # 实例化一个bot
 
 
 @bot.register("/calc (\S+)")
-def test1(msg: AfdianBot.types.TextMsg, code):
+def test1(code):
     # 使用api.query_sponsor检查发送者是否到指定金额档位
     # 如果你想判断发送者是否赞助过某一个方案,可以在plans中检查
     """
@@ -22,6 +22,7 @@ def test1(msg: AfdianBot.types.TextMsg, code):
     else:
         bot.send_msg("你没有赞助xxx方案!",msg.sender_id)
     """
+    msg = AfdianBot.ctx.get_current_msg()
     if AfdianBot.api.query_sponsor(msg.sender_id)['all_sum_amount'] >= 20:
         bot.send_msg(f"你的激活码是:{calc_code(code)}", msg.sender_id)
     else:

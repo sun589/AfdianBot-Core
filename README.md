@@ -11,7 +11,7 @@ bot = AfdianBot.Bot(account="xxxxx", password="xxxx") # 填写账号密码
 def hello():
     msg = AfdianBot.ctx.get_current_msg()
     sender_name = AfdianBot.api.get_user_info(msg.sender_id)['name']
-    bot.send_msg(f"hello {sender_name}!", msg.sender_id) # 回复消息至对方
+    bot.send_msg(f"hello {sender_name}!") # 回复消息至对方
 
 # 在一般情况下，程序默认使用单线程模式，即一个一个处理回复
 # 但在一些需要并发需求(即同时处理多个消息)情况时，你可以加上threded参数启用多线程模式
